@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dark Energy — Cosmos Simplified by Karthik RN</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=IBM+Plex+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #f5f0e8;
+    --paper: #07050f;
+    --deep: #0d0a1e;
+    --mid: #1a1535;
+    --rust: #c0522a;
+    --amber: #e8a838;
+    --teal: #2a8a8a;
+    --dim: #6a6585;
+    --soft: #a09ab8;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Crimson Pro', Georgia, serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Cursor */
+  #cur { width:10px; height:10px; background:var(--amber); border-radius:50%; position:fixed; pointer-events:none; z-index:9999; mix-blend-mode:screen; transition:transform 0.1s; }
+  #cur-r { width:36px; height:36px; border:1px solid rgba(232,168,56,0.35); border-radius:50%; position:fixed; pointer-events:none; z-index:9998; mix-blend-mode:screen; transition:all 0.18s ease; }
+
+  /* Canvas */
+  #bg-canvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    padding: 1.4rem 3rem;
+    display: flex; justify-content:space-between; align-items:center;
+    background: linear-gradient(to bottom, rgba(7,5,15,0.95), transparent);
+  }
+
+  .nav-brand {
+    display: flex; flex-direction:column; gap:2px;
+  }
+  .nav-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--amber);
+  }
+  .nav-author {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.55rem; letter-spacing:0.15em; color:var(--dim);
+  }
+
+  .nav-links { display:flex; gap:2.5rem; list-style:none; }
+  .nav-links a {
+    font-family:'IBM Plex Mono', monospace; font-size:0.6rem;
+    letter-spacing:0.2em; text-transform:uppercase; color:var(--dim);
+    text-decoration:none; transition:color 0.3s;
+  }
+  .nav-links a:hover { color:var(--amber); }
+
+  /* ── HERO ── */
+  .hero {
+    position:relative; z-index:1;
+    min-height:100vh;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    align-items:center;
+    max-width:1200px; margin:0 auto;
+    padding: 8rem 3rem 5rem;
+    gap: 4rem;
+  }
+
+  .hero-left {}
+
+  .hero-vol {
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.6rem; letter-spacing:0.4em; text-transform:uppercase;
+    color:var(--teal); margin-bottom:1.8rem;
+    opacity:0; animation: fadeUp 0.8s 0.3s forwards;
+  }
+
+  .hero h1 {
+    font-family:'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    font-weight:700; line-height:0.95; letter-spacing:-0.02em;
+    color:var(--ink);
+    opacity:0; animation: fadeUp 0.9s 0.5s forwards;
+  }
+
+  .hero h1 .accent { color:var(--amber); font-style:italic; display:block; }
+  .hero h1 .small-line { font-size:0.55em; font-weight:300; color:var(--soft); display:block; margin-top:0.3em; letter-spacing:0.05em; }
+
+  .hero-byline {
+    margin-top:2.5rem;
+    display:flex; align-items:center; gap:1rem;
+    opacity:0; animation:fadeUp 0.8s 0.8s forwards;
+  }
+  .byline-line { width:40px; height:1px; background:var(--rust); }
+  .byline-text {
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem; letter-spacing:0.15em; color:var(--rust);
+  }
+
+  .hero-desc {
+    margin-top:1.8rem; font-size:1.05rem; line-height:1.8; color:var(--soft);
+    max-width:430px;
+    opacity:0; animation:fadeUp 0.9s 1s forwards;
+  }
+
+  .hero-cta {
+    margin-top:2.5rem; display:inline-flex; align-items:center; gap:1rem;
+    padding:0.9rem 2rem; border:1px solid var(--rust);
+    font-family:'IBM Plex Mono', monospace; font-size:0.65rem;
+    letter-spacing:0.2em; text-transform:uppercase; color:var(--rust);
+    text-decoration:none; transition:all 0.3s;
+    opacity:0; animation:fadeUp 0.9s 1.2s forwards;
+  }
+  .hero-cta:hover { background:var(--rust); color:var(--paper); }
+  .hero-cta::after { content:'→'; }
+
+  /* Hero right: big number */
+  .hero-right {
+    display:flex; flex-direction:column; align-items:flex-end;
+    opacity:0; animation:fadeUp 1s 0.6s forwards;
+  }
+  .hero-big-num {
+    font-family:'Cormorant Garamond', serif;
+    font-size: clamp(7rem, 15vw, 14rem);
+    font-weight:300; font-style:italic;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(232,168,56,0.2);
+    line-height:1; user-select:none;
+  }
+  .hero-big-label {
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.6rem; letter-spacing:0.3em;
+    color:var(--dim); text-align:right; margin-top:0.5rem;
+  }
+
+  /* ── INTRO STRIP ── */
+  .intro-strip {
+    position:relative; z-index:1;
+    background:var(--deep);
+    border-top:1px solid rgba(232,168,56,0.08);
+    border-bottom:1px solid rgba(232,168,56,0.08);
+    padding: 5rem 3rem;
+  }
+  .intro-strip-inner {
+    max-width:760px; margin:0 auto;
+    display:grid; grid-template-columns:1fr 3fr; gap:3rem; align-items:start;
+  }
+  .intro-strip-tag {
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.6rem; letter-spacing:0.3em;
+    text-transform:uppercase; color:var(--teal); padding-top:0.3rem;
+  }
+  .intro-strip p {
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.5rem; line-height:1.6; color:var(--ink); font-weight:300;
+  }
+  .intro-strip p em { color:var(--amber); font-style:italic; }
+
+  /* ── SECTIONS ── */
+  .container { position:relative; z-index:1; max-width:760px; margin:0 auto; padding:0 2rem; }
+
+  .section { padding:7rem 0; }
+
+  .sec-label {
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.58rem; letter-spacing:0.4em;
+    text-transform:uppercase; color:var(--teal);
+    margin-bottom:2.5rem;
+    display:flex; align-items:center; gap:1rem;
+  }
+  .sec-label::before { content:''; width:30px; height:1px; background:var(--teal); opacity:0.5; }
+
+  .section h2 {
+    font-family:'Cormorant Garamond', serif;
+    font-size:clamp(2rem, 4vw, 2.8rem); font-weight:600; line-height:1.1;
+    color:var(--ink); margin-bottom:2rem;
+  }
+  .section h2 em { color:var(--amber); font-style:italic; }
+
+  .section p {
+    font-size:1.08rem; line-height:1.85; color:var(--soft); margin-bottom:1.5rem;
+  }
+  .section p strong { color:var(--ink); font-weight:600; }
+
+  /* Pull quote */
+  .pull {
+    margin:3.5rem 0; padding:2rem 2.5rem;
+    border-left:3px solid var(--amber);
+    background:rgba(232,168,56,0.04);
+  }
+  .pull p {
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic; font-size:1.35rem; line-height:1.6;
+    color:var(--ink); margin-bottom:0;
+  }
+
+  /* Data boxes */
+  .data-row {
+    display:grid; grid-template-columns:repeat(3, 1fr);
+    gap:1px; background:rgba(232,168,56,0.08);
+    border:1px solid rgba(232,168,56,0.08);
+    margin:3rem 0;
+  }
+  .data-cell {
+    background:var(--paper); padding:2rem 1.5rem;
+    transition:background 0.3s;
+  }
+  .data-cell:hover { background:var(--deep); }
+  .data-big {
+    font-family:'Cormorant Garamond', serif;
+    font-size:2.8rem; font-weight:700;
+    color:var(--amber); display:block; line-height:1; margin-bottom:0.4rem;
+  }
+  .data-small {
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.6rem; letter-spacing:0.1em; color:var(--dim); line-height:1.5;
+    margin-bottom:0;
+  }
+
+  /* Timeline */
+  .timeline { margin:3rem 0; }
+  .tl-item { display:grid; grid-template-columns:100px 1fr; gap:2rem; margin-bottom:3rem; }
+  .tl-year {
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.8rem; font-weight:700; color:var(--rust);
+    line-height:1; padding-top:0.2rem;
+  }
+  .tl-content h3 {
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.25rem; color:var(--ink); margin-bottom:0.6rem;
+  }
+  .tl-content p { font-size:0.95rem; margin-bottom:0; }
+
+  /* Analogy box */
+  .analogy {
+    background:rgba(42,138,138,0.07);
+    border:1px solid rgba(42,138,138,0.18);
+    padding:2.5rem; margin:3rem 0;
+  }
+  .analogy-tag {
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.58rem; letter-spacing:0.35em; text-transform:uppercase;
+    color:var(--teal); display:block; margin-bottom:1rem;
+  }
+  .analogy p { font-size:1rem; color:#a0c8c8; margin-bottom:0; }
+
+  /* Theory cards */
+  .theory { border-top:1px solid rgba(255,255,255,0.06); padding:2.5rem 0; }
+  .theory:last-child { border-bottom:1px solid rgba(255,255,255,0.06); }
+  .theory-name {
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.3rem; font-style:italic; color:var(--amber); margin-bottom:0.8rem;
+  }
+  .theory-status {
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.55rem; letter-spacing:0.2em; text-transform:uppercase;
+    padding:0.25rem 0.7rem;
+    border:1px solid var(--rust); color:var(--rust);
+    margin-bottom:1rem;
+  }
+  .theory-status.active { border-color:var(--teal); color:var(--teal); }
+
+  /* Divider */
+  .div { width:100%; height:1px; background:linear-gradient(to right, transparent, rgba(232,168,56,0.15), transparent); margin:1rem 0; }
+
+  /* ── FOOTER ── */
+  footer {
+    position:relative; z-index:1;
+    background:var(--deep);
+    border-top:1px solid rgba(232,168,56,0.1);
+    padding:5rem 3rem 3rem;
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:3rem; align-items:start;
+    max-width:1200px; margin:0 auto;
+  }
+  .footer-left .footer-brand {
+    font-family:'Cormorant Garamond', serif;
+    font-size:2rem; color:var(--amber); display:block; margin-bottom:1rem;
+  }
+  .footer-left p {
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.6rem; letter-spacing:0.1em; color:var(--dim); line-height:1.7;
+  }
+  .footer-right { text-align:right; }
+  .footer-author-label {
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.55rem; letter-spacing:0.3em; text-transform:uppercase;
+    color:var(--dim); display:block; margin-bottom:0.5rem;
+  }
+  .footer-author-name {
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.8rem; font-weight:600; color:var(--ink);
+    display:block; margin-bottom:1rem;
+  }
+  .footer-right p {
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.55rem; letter-spacing:0.1em; color:var(--dim); line-height:1.8;
+  }
+  .footer-bar {
+    position:relative; z-index:1;
+    border-top:1px solid rgba(255,255,255,0.04);
+    padding:1.5rem 3rem;
+    display:flex; justify-content:space-between; align-items:center;
+    max-width:1200px; margin:0 auto;
+  }
+  .footer-bar span {
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.55rem; letter-spacing:0.15em; color:var(--dim);
+  }
+  .footer-bar .bar-author { color:var(--amber); }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(22px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+
+  .reveal { opacity:0; transform:translateY(28px); transition:opacity 0.85s ease, transform 0.85s ease; }
+  .reveal.on { opacity:1; transform:translateY(0); }
+
+  /* Glow orbs */
+  .orb { position:fixed; border-radius:50%; filter:blur(90px); pointer-events:none; z-index:0; opacity:0.1; }
+  .o1 { width:600px; height:600px; background:var(--rust); top:-200px; left:-200px; }
+  .o2 { width:400px; height:400px; background:var(--teal); bottom:0; right:-100px; }
+
+  @media(max-width:768px){
+    .hero { grid-template-columns:1fr; padding:7rem 1.5rem 4rem; }
+    .hero-right { display:none; }
+    .intro-strip-inner { grid-template-columns:1fr; gap:1rem; }
+    .data-row { grid-template-columns:1fr; }
+    footer { grid-template-columns:1fr; }
+    .footer-right { text-align:left; }
+    nav { padding:1.2rem 1.5rem; }
+    .nav-links { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-r"></div>
+<div class="orb o1"></div>
+<div class="orb o2"></div>
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <span class="nav-title">Cosmos Simplified</span>
+    <span class="nav-author">by Karthik RN</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#discovery">Discovery</a></li>
+    <li><a href="#what">What Is It</a></li>
+    <li><a href="#theories">Theories</a></li>
+    <li><a href="#future">Future</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <p class="hero-vol">Vol. 02 — Cosmos Simplified</p>
+    <h1>
+      Dark
+      <span class="accent">Energy</span>
+      <span class="small-line">The force tearing the universe apart</span>
+    </h1>
+    <div class="hero-byline">
+      <div class="byline-line"></div>
+      <span class="byline-text">Written by Karthik RN</span>
+    </div>
+    <p class="hero-desc">Something is pushing every galaxy away from every other galaxy, faster and faster, and we have absolutely no idea what it is. Welcome to the biggest unsolved problem in physics.</p>
+    <a href="#discovery" class="hero-cta">Start Reading</a>
+  </div>
+  <div class="hero-right">
+    <div class="hero-big-num">68</div>
+    <p class="hero-big-label">percent of the universe<br>is dark energy</p>
+  </div>
+</section>
+
+<!-- INTRO STRIP -->
+<div class="intro-strip">
+  <div class="intro-strip-inner">
+    <div class="intro-strip-tag">The core idea</div>
+    <p>The universe isn't just expanding. It's expanding <em>faster and faster</em> every second — accelerating into a void, driven by something invisible, something we cannot see, touch, or explain. We call it dark energy. It makes up <em>68% of everything that exists</em>, and we have almost no idea what it is.</p>
+  </div>
+</div>
+
+<!-- DISCOVERY -->
+<section class="section" id="discovery">
+  <div class="container">
+    <div class="sec-label reveal">How we found it</div>
+    <h2 class="reveal">Nobody was <em>looking</em> for it. That's what made it so shocking.</h2>
+
+    <p class="reveal">In 1998, two teams of astronomers were doing something rather mundane by cosmic standards: measuring how fast the universe was decelerating. Everyone assumed the universe, born in the Big Bang, was expanding — but slowing down, like a ball thrown upward eventually loses speed. They wanted to know the rate of that slowdown.</p>
+
+    <p class="reveal">To measure it, they used a very specific type of exploding star called a <strong>Type Ia supernova</strong>. These explosions are extraordinary because they always detonate with the same brightness — they're the universe's standard ruler. Measure how faint one looks from Earth, and you know exactly how far away it is.</p>
+
+    <div class="analogy reveal">
+      <span class="analogy-tag">Simple Analogy</span>
+      <p>Imagine every streetlamp in a city is identical — same wattage, same bulb. If you can see a lamp clearly, it's close. If it looks dim, it's far. Now imagine looking at lamps and realising they're all much dimmer than expected. Either the lamps got weaker, or the city got much, much bigger. The supernovae were dimmer. The universe got bigger — way faster than anyone predicted.</p>
+    </div>
+
+    <p class="reveal">The distant supernovae were fainter — and therefore further away — than a decelerating universe could account for. The universe wasn't slowing down at all. It was <strong>speeding up</strong>. Both teams, working independently, reached the same impossible conclusion. They won the Nobel Prize in Physics in 2011 for discovering something that overturned everything.</p>
+
+    <div class="pull reveal">
+      <p>The universe isn't coasting to a stop. It's pressing down on the accelerator — and nobody knows who's driving.</p>
+    </div>
+
+    <div class="sec-label reveal" style="margin-top:4rem;">The timeline</div>
+    <div class="timeline">
+      <div class="tl-item reveal">
+        <div class="tl-year">1917</div>
+        <div class="tl-content">
+          <h3>Einstein's "Biggest Blunder"</h3>
+          <p>Einstein added a "cosmological constant" to his equations to keep the universe from collapsing. When Hubble showed the universe was expanding, Einstein called it his greatest mistake and removed it. Decades later, we discovered he may have been right the first time — just for the wrong reasons.</p>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-year">1998</div>
+        <div class="tl-content">
+          <h3>The Supernova Shock</h3>
+          <p>Two competing teams — the Supernova Cosmology Project and the High-Z Supernova Search Team — simultaneously discover the universe's expansion is accelerating. Physics is never quite the same again.</p>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-year">2011</div>
+        <div class="tl-content">
+          <h3>Nobel Prize</h3>
+          <p>Saul Perlmutter, Brian Schmidt, and Adam Riess are awarded the Nobel Prize in Physics for the discovery of the accelerating expansion of the universe.</p>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-year">Now</div>
+        <div class="tl-content">
+          <h3>Still a Mystery</h3>
+          <p>Despite 25 years of dedicated research, dark energy remains unexplained. New telescopes like the Euclid Space Telescope and the Vera Rubin Observatory are hunting for answers as you read this.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<!-- WHAT IS IT -->
+<section class="section" id="what">
+  <div class="container">
+    <div class="sec-label reveal">What exactly is it</div>
+    <h2 class="reveal">An energy that <em>fills empty space</em> — and pushes everything apart</h2>
+
+    <p class="reveal">Here's where it gets genuinely strange. Dark energy isn't a thing in the way matter is a thing. It doesn't clump. It doesn't cluster around galaxies. It doesn't decay. It appears to be a property of <strong>space itself</strong> — a kind of inherent energy that empty space carries, spreading as the universe expands, pushing outward against gravity.</p>
+
+    <p class="reveal">Gravity pulls things together. Dark energy pushes them apart. On small scales — within galaxies, within solar systems — gravity wins easily. But on the largest scales, across billions of light years, dark energy dominates. It is slowly but relentlessly tearing the large-scale structure of the universe apart.</p>
+
+    <div class="data-row reveal">
+      <div class="data-cell">
+        <span class="data-big">68%</span>
+        <p class="data-small">of the universe is dark energy</p>
+      </div>
+      <div class="data-cell">
+        <span class="data-big">27%</span>
+        <p class="data-small">is dark matter (also mysterious)</p>
+      </div>
+      <div class="data-cell">
+        <span class="data-big">5%</span>
+        <p class="data-small">is everything you've ever seen</p>
+      </div>
+    </div>
+
+    <p class="reveal">What makes dark energy particularly mind-bending is its relationship with empty space. In quantum mechanics, even a perfect vacuum isn't truly empty — it seethes with virtual particles popping in and out of existence. These fluctuations carry energy. Could that be dark energy? Possibly. But when physicists calculated how much energy the vacuum should have, the answer was off by <strong>a factor of 10 to the power of 120</strong> — the largest discrepancy between theory and observation in the history of physics.</p>
+
+    <div class="analogy reveal">
+      <span class="analogy-tag">Simple Analogy</span>
+      <p>Imagine blowing up a balloon. The rubber is like gravity — it resists. Now imagine the air inside the balloon is somehow creating more air as it expands — the balloon grows faster the bigger it gets, without you blowing harder. That's what dark energy does to the universe. The more space there is, the more dark energy there is, and the faster it all expands.</p>
+    </div>
+
+    <p class="reveal">This leads to a haunting implication: in the very far future, billions of years from now, the expansion may become so extreme that even galaxies, then stars, then atoms themselves are torn apart. Cosmologists call this the <strong>Big Rip</strong> — though whether it happens depends on exactly what dark energy turns out to be.</p>
+
+    <div class="pull reveal">
+      <p>The universe began in an explosion of heat and matter. It may end in a cold, silent scattering — every particle so far from every other particle that the cosmos becomes, effectively, nothing.</p>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<!-- THEORIES -->
+<section class="section" id="theories">
+  <div class="container">
+    <div class="sec-label reveal">The leading theories</div>
+    <h2 class="reveal">What could it <em>actually be?</em></h2>
+
+    <p class="reveal">Unlike dark matter, where we at least have a list of reasonable particle candidates, dark energy is more philosophically vexing. The leading ideas span from tidy tweaks to radical rewrites of physics.</p>
+
+    <div class="theory reveal">
+      <p class="theory-name">The Cosmological Constant (Λ)</p>
+      <span class="theory-status active">Leading Candidate</span>
+      <p class="section p" style="font-size:1.05rem; line-height:1.85; color:var(--soft); margin-bottom:0;">Einstein's old idea: empty space has a fixed, intrinsic energy density. It doesn't change. It doesn't evolve. It just is. This fits all current observations remarkably well. The problem is theoretical — nobody can explain <em>why</em> space would have this energy, or why it has the specific tiny value it does. It works as a description. It doesn't work as an explanation.</p>
+    </div>
+
+    <div class="theory reveal">
+      <p class="theory-name">Quintessence</p>
+      <span class="theory-status">Theoretical</span>
+      <p class="section p" style="font-size:1.05rem; line-height:1.85; color:var(--soft); margin-bottom:0;">What if dark energy isn't a constant, but a dynamic field — like an invisible fluid that permeates space and changes over time? Quintessence models allow dark energy to evolve, meaning its strength could have been different in the early universe. If future observations show dark energy changing with time, this would be strong evidence for quintessence over the cosmological constant.</p>
+    </div>
+
+    <div class="theory reveal">
+      <p class="theory-name">Modified Gravity</p>
+      <span class="theory-status">Fringe Candidate</span>
+      <p class="section p" style="font-size:1.05rem; line-height:1.85; color:var(--soft); margin-bottom:0;">What if the acceleration isn't caused by energy at all, but by gravity behaving differently at cosmic scales? Just as Newtonian gravity breaks down near black holes and requires Einstein's relativity, maybe general relativity itself breaks down across billions of light years. Several modified gravity theories can produce accelerated expansion without invoking dark energy at all.</p>
+    </div>
+
+    <div class="theory reveal">
+      <p class="theory-name">The Multiverse Anthropic Argument</p>
+      <span class="theory-status">Controversial</span>
+      <p class="section p" style="font-size:1.05rem; line-height:1.85; color:var(--soft); margin-bottom:0;">Some physicists argue that in a multiverse of many universes, each with different physical constants, we should expect to find ourselves in one where dark energy is the exact value it needs to be for galaxies and stars to form. Too much dark energy and matter never clumps — no galaxies, no stars, no us. This is called the anthropic argument, and it's controversial because it explains the value of dark energy without predicting it — which leaves many physicists deeply unsatisfied.</p>
+    </div>
+
+    <div class="analogy reveal">
+      <span class="analogy-tag">The Honest Summary</span>
+      <p>We named it. We measured it. We mapped its effects across the observable universe. And we still don't know what it is. That's not a failure — it's an open invitation. Every generation of physics has had its great unsolved problem. This is ours.</p>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<!-- FUTURE -->
+<section class="section" id="future">
+  <div class="container">
+    <div class="sec-label reveal">What comes next</div>
+    <h2 class="reveal">The tools we're building to <em>crack the mystery</em></h2>
+
+    <p class="reveal">The race to understand dark energy is real, urgent, and well-funded. Several major instruments are either operating now or coming online soon, specifically designed to measure dark energy's properties with unprecedented precision.</p>
+
+    <p class="reveal">The <strong>Euclid Space Telescope</strong>, launched in 2023, will map over a billion galaxies across 10 billion years of cosmic history. By measuring how the large-scale structure of the universe evolved, it can detect subtle changes in dark energy's strength over time — a signature that could distinguish between the cosmological constant and something more exotic like quintessence.</p>
+
+    <p class="reveal">The <strong>Vera C. Rubin Observatory</strong> in Chile will photograph the entire visible sky every few nights for a decade, cataloguing tens of billions of objects. Its deep survey of supernovae and galaxy clusters will give cosmologists the statistical power to test dark energy models with extraordinary precision.</p>
+
+    <p class="reveal">And then there's the theoretical frontier. Physicists are working to reconcile quantum mechanics with general relativity — a quest that has consumed the best minds in physics for a century. When that unification finally comes, it may explain dark energy naturally, as a consequence of a deeper structure of reality we haven't yet discovered.</p>
+
+    <div class="pull reveal">
+      <p>The universe is 13.8 billion years old. We've been doing precision cosmology for about 30 years. We are very new to this, and the best answers are still ahead of us.</p>
+    </div>
+
+    <p class="reveal" style="font-size:0.95rem; color:var(--dim); margin-top:3rem;">Dark energy remains the most prominent reminder of how much we don't know. It dominates the universe. It shapes the fate of everything. And it sits at the edge of human understanding — not as a defeat, but as the most compelling open question science has ever posed. Somewhere in the mathematics we haven't written yet, in the experiments we haven't run, and the observations we haven't made, the answer is waiting.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">
+    <span class="footer-brand">Cosmos Simplified</span>
+    <p>Making astrophysics accessible<br>to every curious mind.<br><br>No physics degree required.<br>Just curiosity.</p>
+  </div>
+  <div class="footer-right">
+    <span class="footer-author-label">Written &amp; Created by</span>
+    <span class="footer-author-name">Karthik RN</span>
+    <p>Vol. 02 — Dark Energy<br>Part of the Cosmos Simplified series<br><br>Simplifying the universe,<br>one mystery at a time.</p>
+  </div>
+</footer>
+<div class="footer-bar">
+  <span>Cosmos Simplified · Vol. 02 · Dark Energy</span>
+  <span class="bar-author">© Karthik RN</span>
+</div>
+
+<script>
+  // Cursor
+  const cur = document.getElementById('cur');
+  const curR = document.getElementById('cur-r');
+  let mx=0, my=0, rx=0, ry=0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cur.style.left = mx-5+'px'; cur.style.top = my-5+'px';
+  });
+  (function tick(){ rx+=(mx-rx)*0.13; ry+=(my-ry)*0.13;
+    curR.style.left=rx-18+'px'; curR.style.top=ry-18+'px';
+    requestAnimationFrame(tick);
+  })();
+  document.querySelectorAll('a').forEach(a => {
+    a.addEventListener('mouseenter',()=>{ cur.style.transform='scale(2.5)'; curR.style.transform='scale(1.4)'; });
+    a.addEventListener('mouseleave',()=>{ cur.style.transform='scale(1)'; curR.style.transform='scale(1)'; });
+  });
+
+  // Particle canvas
+  const cv = document.getElementById('bg-canvas');
+  const cx = cv.getContext('2d');
+  let pts = [];
+  function resize(){ cv.width=innerWidth; cv.height=innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  for(let i=0;i<180;i++){
+    pts.push({ x:Math.random()*innerWidth, y:Math.random()*innerHeight,
+      r:Math.random()*1.1, a:Math.random()*0.7+0.1,
+      sp:Math.random()*0.004+0.001, ph:Math.random()*Math.PI*2 });
+  }
+  let t=0;
+  (function draw(){
+    cx.clearRect(0,0,cv.width,cv.height); t+=0.01;
+    pts.forEach(p=>{
+      const alpha = p.a*(0.4+0.6*(0.5+0.5*Math.sin(t*p.sp*60+p.ph)));
+      cx.beginPath(); cx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      cx.fillStyle=`rgba(245,240,232,${alpha})`;
+      cx.fill();
+    });
+    requestAnimationFrame(draw);
+  })();
+
+  // Scroll reveal
+  const els = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('on'); });
+  },{ threshold:0.1 });
+  els.forEach(e=>obs.observe(e));
+</script>
+</body>
+</html>
